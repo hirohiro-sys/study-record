@@ -1,4 +1,4 @@
-name: Deploy to Firebase
+name: Deploy to Firebase Hosting
 
 on:
   push:
@@ -20,11 +20,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run build 
-        run:  npm run build
+      - name: Run build and tests
+        run: |
+          npm run build
+          npm run test
+        env:
+          VITE_SUPABASE_URL: ${{secrets.VITE_SUPABASE_URL}}
+          VITE_SUPABASE_ANON_KEY: ${{secrets.VITE_SUPABASE_ANON_KEY}}
 
-      - name: Run tests
-        run:  npm run test
 
       - name: Install firebase-tools
         run: npm install --save-dev firebase-tools
