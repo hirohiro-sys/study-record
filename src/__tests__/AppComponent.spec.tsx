@@ -9,7 +9,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { getAllRecords, addRecord, deleteRecord, updateRecord } from "../lib/supabasefunctions";
 
-jest.mock("../lib/supabaseFunctions", () => {
+jest.mock("../lib/supabasefunctions", () => {
   return {
     getAllRecords: jest.fn().mockResolvedValue([
       { id: "1", title: "react", time: 10 },
