@@ -227,7 +227,7 @@ function App() {
                 <Th></Th>
               </Tr>
             </Thead>
-            <Tbody>
+            <Tbody data-testid="record-row">
               {records.map((record) => (
                 <Tr key={record.id}>
                   <Td>{record.title}</Td>
