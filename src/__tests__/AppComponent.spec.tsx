@@ -7,22 +7,34 @@ import {
   fireEvent,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { getAllRecords, addRecord, deleteRecord, updateRecord } from "../lib/supabasefunctions";
 
 jest.mock("../lib/supabasefunctions", () => {
+  let records = [
+    { id: "1", title: "react", time: 10 },
+    { id: "2", title: "git", time: 20 },
+    { id: "3", title: "linux", time: 30 },
+  ];
+
   return {
-    getAllRecords: jest.fn().mockResolvedValue([
-      { id: "1", title: "react", time: 10 },
-      { id: "2", title: "git", time: 20 },
-      { id: "3", title: "linux", time: 30 },
-    ]),
-    addRecord: jest.fn().mockImplementation((title: string, time: string) => {
-      return Promise.resolve([{ id: "4", title, time }]);
+    getAllRecords: jest.fn().mockImplementation(() => {
+      return Promise.resolve(records);
     }),
-    deleteRecord: jest.fn(),
-    updateRecord: jest
-      .fn()
-      .mockResolvedValue([{ id: "1", title: "編集できました", time: 1 }]),
+    addRecord: jest.fn().mockImplementation((title, time) => {
+      const newRecord = { id: (records.length + 1).toString(), title, time };
+      records.push(newRecord);
+      return Promise.resolve(newRecord);
+    }),
+    deleteRecord: jest.fn().mockImplementation((id) => {
+      records = records.filter((record) => record.id !== id);
+      return Promise.resolve(true);
+    }),
+    updateRecord: jest.fn().mockImplementation((id, title, time) => {
+      const index = records.findIndex((record) => record.id === id);
+      if (index !== -1) {
+        records[index] = { id, title, time };
+      }
+      return Promise.resolve(records[index]);
+    }),
   };
 });
 
@@ -41,31 +53,22 @@ describe("学習記録アプリ全テスト", () => {
     });
   });
 
-  // test("削除できること", async () => {
-  //   await waitFor(() => {
-  //     expect(screen.getByTestId("record-list")).toBeInTheDocument();
-  //   });
+  test("DELETE", async () => {
+    await waitFor(() => screen.getAllByTestId("record-list"));
+    let records = screen
+      .getAllByTestId("record-list")[0]
+      .querySelectorAll("tr");
+    const initialRecordCount = records.length;
 
-  //   const beforeRecords = screen
-  //     .getByTestId("record-row")
-  //     .querySelectorAll("tr").length;
+    const deleteButtons = screen.getAllByTestId("delete-button");
+    await userEvent.click(deleteButtons[0]);
 
-  //   await userEvent.click(screen.getAllByTestId("delete-button")[0]);
-
-  //   await waitFor(() => {
-  //     expect(
-  //       screen.getByTestId("record-row").querySelectorAll("tr").length
-  //     ).toBe(beforeRecords-1);
-  //   });
-  // });
+    await waitFor(() => {
+      records = screen.getAllByTestId("record-list")[0].querySelectorAll("tr");
+      expect(records.length).toBe(initialRecordCount - 1);
+    });
+  });  
   
-  
-  
-  
-
-
-
-
   /*---完了済みのテスト---*/
   test("ローディング画面が見れる", () => {
     expect(screen.getByTestId("loading-screen")).toBeInTheDocument();
@@ -139,5 +142,4 @@ describe("学習記録アプリ全テスト", () => {
       ).toBeInTheDocument();
     });
   });
-
 });
