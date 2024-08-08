@@ -1,30 +1,19 @@
-# React + TypeScript + Vite
+# 学習記録アプリ
+エンジニアになるためには1000時間の学習が必要とされています。このアプリではあなたの日々の学習記録を記録し管理することができます。
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<img width="1515" alt="スクリーンショット 2024-08-08 21 47 20" src="https://github.com/user-attachments/assets/b418bb65-9182-4483-994b-bfb2e9cc967c">
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+# 環境設定
+プロジェクトのルートディレクトリに .env ファイルを作成し、以下のように環境変数を設定します。
+```
+VITE_SUPABASE_URL=https://your-supabase-url.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-api-key
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+# 起動方法
+
+```
+git clone https://github.com/hirohiro-sys/react-supabase-cicd-demo.git
+npm i
+npm run dev
+```
