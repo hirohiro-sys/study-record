@@ -48,9 +48,17 @@ function App() {
     register,
     reset,
     setValue,
-    formState: { errors },
+    formState: { errors }
   } = useForm<formInputs>();
+  
 
+  // 「学習記録を登録する」モーダルを開いた時の処理
+  const onClickModalOpen = () => {
+    reset({ title: "", time: "" });
+    setEditRecord(null); 
+    onOpen();
+  };
+  // レコードの初期表示
   useEffect(() => {
     const getRecords = async () => {
       setNowLoading(true);
@@ -60,11 +68,7 @@ function App() {
     };
     getRecords();
   }, []);
-
-  const onClickModalOpen = () => {
-    reset({ title: "", time: "" });
-    onOpen();
-  };
+  // レコードの追加
   const onClickAddRecord: SubmitHandler<formInputs> = async (data) => {
     await addRecord(data.title, data.time);
     let newRecords = await getAllRecords();
@@ -72,24 +76,25 @@ function App() {
     reset({ title: "", time: "" });
     onClose();
   };
-
+  // レコードの削除
   const onClickDeleteRecord = async (id: number) => {
     await deleteRecord(id);
     let newRecords = await getAllRecords();
     setRecords(newRecords);
   };
-
-  const onClickEditRecord = (record: Record) => {
+  // レコードの編集ボタンを押した時の処理
+  const onClickEditButton = (record: Record) => {
     setEditRecord(record);
     setValue("title", record.title);
     setValue("time", record.time.toString());
     onOpen();
   };
-  const onSubmitEditRecord: SubmitHandler<formInputs> = async (data) => {
+  // レコードを編集して更新ボタンを押した時の処理
+  const onClickEditRecord: SubmitHandler<formInputs> = async (data) => {
     if (editRecord) {
       await updateRecord(editRecord.id, data.title, data.time);
       let updatedRecords = [...records];
-      const index = updatedRecords.findIndex((r) => r.id === editRecord.id);
+      const index = updatedRecords.findIndex((record) => record.id === editRecord.id);
       if (index !== -1) {
         updatedRecords[index] = {
           ...editRecord,
@@ -102,7 +107,7 @@ function App() {
       onClose();
     }
   };
-
+  // 学習時間の合計を取得
   const sumTime = records.reduce((total, rec) => total + Number(rec.time), 0);
 
   return (
@@ -138,7 +143,6 @@ function App() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {/* <form> */}
             <FormControl isInvalid={Boolean(errors.title)}>
               <FormLabel htmlFor="title">学習内容</FormLabel>
               <Input
@@ -153,7 +157,6 @@ function App() {
                 {errors.title && errors.title.message}
               </FormErrorMessage>
             </FormControl>
-
             <FormControl mt={4} isInvalid={Boolean(errors.time)}>
               <FormLabel htmlFor="time">学習時間</FormLabel>
               <Input
@@ -173,7 +176,6 @@ function App() {
                 {errors.time && errors.time.message}
               </FormErrorMessage>
             </FormControl>
-            {/* </form> */}
           </ModalBody>
           <ModalFooter margin="auto">
             <Button
@@ -183,7 +185,7 @@ function App() {
               type="submit"
               onClick={
                 editRecord
-                  ? handleSubmit(onSubmitEditRecord)
+                  ? handleSubmit(onClickEditRecord)
                   : handleSubmit(onClickAddRecord)
               }
             >
@@ -237,7 +239,7 @@ function App() {
                       data-testid="update-button"
                       color="white"
                       bgColor="green.500"
-                      onClick={() => onClickEditRecord(record)}
+                      onClick={() => onClickEditButton(record)}
                     >
                       編集
                     </Button>

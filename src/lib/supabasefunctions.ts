@@ -23,5 +23,5 @@ export const deleteRecord = async (id: number) => {
 
 // レコードを編集
 export const updateRecord = async(id:number,title: string,time: string) =>{
-  await supabase.from('study-record').update({ title,time }).eq('id', id)
+    await supabase.from('study-record').update({ title,time }).eq('id', id)
 }

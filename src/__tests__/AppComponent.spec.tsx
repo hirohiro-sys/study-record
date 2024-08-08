@@ -7,45 +7,42 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+const initialRecords = [
+  { id: 1, title: "react", time: "10" },
+  { id: 2, title: "git", time: "20" },
+  { id: 3, title: "linux", time: "30" },
+];
+
+const recordsAfterDelete = [
+  { id: 1, title: "react", time: "10" },
+  { id: 2, title: "git", time: "20" },
+];
+
+const recordsAfterCreate = [
+  { id: 1, title: "react", time: "10" },
+  { id: 2, title: "git", time: "20" },
+  { id: 3, title: "supabase", time: "10" },
+];
+
+const recordsAfterUpdate = [
+  { id: 1, title: "react", time: "10" },
+  { id: 2, title: "git", time: "20" },
+  { id: 3, title: "firebase", time: "10" },
+];
+
 const mockGetAllRecords = jest
   .fn()
-  // 初期表示のテスト
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-    { id: 3, title: "linux", time: "30" },
-  ])
-  // 削除のテスト
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-    { id: 3, title: "linux", time: "30" },
-  ])
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-  ]) 
-  // 追加のテスト
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-  ])
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-    {id: 3,title: "supabase",time:"10"}
-  ])
-  // 編集テスト
-  .mockResolvedValueOnce([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-    {id: 3,title: "supabase",time:"10"}
-  ])
-  .mockResolvedValue([
-    { id: 1, title: "react", time: "10" },
-    { id: 2, title: "git", time: "20" },
-    {id: 3,title: "firebase",time:"10"}
-  ]);
+  // 初期表示テストのモックデータ
+  .mockResolvedValueOnce(initialRecords)
+  // 削除テストのモックデータ
+  .mockResolvedValueOnce(initialRecords)
+  .mockResolvedValueOnce(recordsAfterDelete)
+  // 追加テストのモックデータ
+  .mockResolvedValueOnce(recordsAfterDelete)
+  .mockResolvedValueOnce(recordsAfterCreate)
+  // 編集テストのモックデータ
+  .mockResolvedValueOnce(recordsAfterCreate)
+  .mockResolvedValue(recordsAfterUpdate);
 
 jest.mock("../lib/supabasefunctions", () => {
   return {
@@ -69,7 +66,7 @@ describe("学習記録アプリ全テスト", () => {
     });
   });
 
-  test("削除", async () => {
+  test("DELETE", async () => {
     // 1回目のmockGetAllRecords
     await waitFor(() => {
       const recordList = screen.getByTestId("record-list");
@@ -89,48 +86,55 @@ describe("学習記録アプリ全テスト", () => {
     });
   });
 
-  test("追加", async ()=>{
+  test("CREATE", async () => {
+    // 1回目のmockGetAllRecords
     await waitFor(() => {
       const recordList = screen.getByTestId("record-list");
       expect(recordList).toBeInTheDocument();
       const rows = recordList.querySelectorAll("tr");
       expect(rows.length - 1).toBe(2);
     });
+    // モーダルを開く
     const registerButton = screen.getByTestId("add-record-button");
     await userEvent.click(registerButton);
+    // 学習内容と学習時間を入力
     const titleInput = screen.getByTestId("title-input");
     await userEvent.type(titleInput, "supabase");
     const timeInput = screen.getByTestId("time-input");
     await userEvent.type(timeInput, "10");
+    // 登録ボタンをクリック
     userEvent.click(screen.getByTestId("submit-button"));
-
+    // 2回目のmockGetAllRecords
     await waitFor(() => {
       const recordList = screen.getByTestId("record-list");
       expect(recordList).toBeInTheDocument();
       const rows = recordList.querySelectorAll("tr");
       expect(rows.length - 1).toBe(3);
     });
-  })
+  });
 
-  test("編集",async ()=>{
+  test("UPDATE", async () => {
+    // 1回目のmockGetAllRecords
     await waitFor(() =>
       expect(screen.getByTestId("record-list")).toBeInTheDocument()
     );
+    // モーダルを開く
     const editButtons = screen.getAllByTestId("update-button");
     userEvent.click(editButtons[0]);
     await waitFor(() =>
       expect(screen.getByText("学習記録を編集する")).toBeInTheDocument()
     );
+    // 学習内容をsupabaseからfirebaseにする
     const titleInput = screen.getByTestId("title-input");
     userEvent.clear(titleInput);
     await userEvent.type(titleInput, "firebase");
+    // 登録ボタンをクリック
     userEvent.click(screen.getByTestId("submit-button"));
-    await waitFor(()=>screen.getByText("firebase"));
-  })
+    // 2回目のmockGetAllRecordsでfirebaseが取得できることを確認
+    await waitFor(() => screen.getByText("firebase"));
+  });
 
-
-
-  /*---完了済みのテスト---*/
+  /*---それ以外のテスト---*/
   test("ローディング画面が見れる", () => {
     expect(screen.getByTestId("loading-screen")).toBeInTheDocument();
   });
